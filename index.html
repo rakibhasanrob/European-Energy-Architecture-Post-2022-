@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>European Energy Architecture | 2022 Transformation</title>
+  
+  <!-- MapLibre GL CSS (Local file for guaranteed offline & file:// support) -->
+  <link rel="stylesheet" href="maplibre-gl.css?v=9.0" />
+  
+  <!-- Custom Modern Stylesheet -->
+  <link rel="stylesheet" href="style.css?v=9.0" />
+</head>
+<body>
+
+  <!-- Fullscreen WebGL Map Container -->
+  <div id="map"></div>
+
+  <!-- Subtle Edge Vignette -->
+  <div class="vignette-overlay"></div>
+
+  <!-- Top-Left: Minimalist Editorial Header -->
+  <div class="map-header" id="mapHeader">
+    <div class="map-header-icon" id="mapHeaderIcon" title="Energy Architecture System">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+      </svg>
+    </div>
+    <span class="map-header-title">European Energy Architecture</span>
+    <div class="map-header-divider"></div>
+    <span class="map-header-subtitle" id="mapHeaderSubtitle">Post-2022 Pivot: Severed Russian Corridors & Global LNG Bridge</span>
+  </div>
+
+  <!-- Top-Right Actions & Minimalist Menu -->
+  <div class="action-bar" id="actionBar">
+    <!-- Era Switcher: Pre-2022 vs Post-2022 -->
+    <div class="segmented-control era-control" id="eraControl" title="Switch Era: Pre-2022 Russian Flows vs Post-2022 Diversification (Key: E)">
+      <button class="seg-btn" data-era="pre2022" id="eraPreBtn">Pre-2022 Flow</button>
+      <button class="seg-btn active" data-era="post2022" id="eraPostBtn">Post-2022 Pivot</button>
+    </div>
+
+    <div class="menu-container">
+      <button class="action-btn menu-dots-btn" id="menuDotsBtn" title="Options & Label Controls">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="5" r="2.2"></circle>
+          <circle cx="12" cy="12" r="2.2"></circle>
+          <circle cx="12" cy="19" r="2.2"></circle>
+        </svg>
+      </button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <div class="menu-section-title">Label Density</div>
+        <div class="menu-segmented-wrapper">
+          <div class="segmented-control label-control in-menu" id="labelModeControl" title="Label Mode: Focus / All / Off (Key: L)">
+            <button class="seg-btn active" data-mode="focus" id="segFocusBtn">Focus</button>
+            <button class="seg-btn" data-mode="all" id="segAllBtn">All</button>
+            <button class="seg-btn" data-mode="off" id="segOffBtn">Off</button>
+          </div>
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-section-title">Timeline</div>
+        <div class="menu-status-badge" id="menuStatusBadge">Phase 2: Post-2022</div>
+        <div class="menu-divider"></div>
+        <div class="menu-item" id="menuToggleEraBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="1 4 1 10 7 10"></polyline>
+            <polyline points="23 20 23 14 17 14"></polyline>
+            <path d="M20.49 9A9 9 0 0 0 5.64 5.64L1 10m22 4l-4.64 4.36A9 9 0 0 1 3.51 15"></path>
+          </svg>
+          Toggle Era (Key: E)
+        </div>
+        <div class="menu-item" id="menuAboutBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          About Architecture
+        </div>
+        <div class="menu-divider"></div>
+        <div class="menu-section-title">Export View</div>
+        <div class="menu-item" id="menuExportHDBtn">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Export Ultra-HD Image (PNG)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom-Left: Transport Modes / Energy Corridors Legend (Compact & Dynamic) -->
+  <div class="legend-card" id="legendCard">
+    <div class="legend-title" id="legendTitle">Energy Corridors</div>
+    <div class="legend-items" id="legendItems">
+      <!-- Populated dynamically by app.js based on active era -->
+    </div>
+  </div>
+
+  <!-- Export Progress Toast -->
+  <div class="export-toast" id="exportToast">
+    <div class="export-spinner" id="exportSpinner"></div>
+    <span id="exportToastText">Rendering Ultra-HD Export...</span>
+  </div>
+
+  <!-- Export Preview Modal (Provides instant visual confirmation & 100% reliable 1-click PNG download) -->
+  <div class="info-modal" id="exportModal">
+    <div class="info-modal-content export-modal-content">
+      <h2>Ultra-HD Map Export Ready</h2>
+      <p class="export-modal-desc">Your high-resolution map image has been generated. Use the buttons below or right-click the preview to save:</p>
+      <div class="export-preview-container">
+        <img id="exportPreviewImg" alt="Map Export" />
+      </div>
+      <div class="export-modal-actions">
+        <a id="exportOpenNewTabBtn" class="export-download-btn secondary" href="#" target="_blank" style="background: rgba(255, 255, 255, 0.12); color: #f1f5f9; margin-right: 6px;">View Full Size</a>
+        <a id="exportDirectDownloadBtn" class="export-download-btn" href="#" download="European_Energy_Architecture_HD.png">Download PNG Image</a>
+        <button class="close-modal-btn" id="closeExportModalBtn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Information Modal -->
+  <div class="info-modal" id="infoModal">
+    <div class="info-modal-content">
+      <h2 id="modalTitle">European Energy Architecture</h2>
+      <div id="modalBody">
+        <!-- Content updated dynamically by era -->
+      </div>
+      <button class="close-modal-btn" id="closeModalBtn">Close</button>
+    </div>
+  </div>
+
+  <!-- Libraries & Data (Local files for guaranteed offline & file:// support) -->
+  <script src="maplibre-gl.js?v=9.0"></script>
+  <script src="html-to-image.min.js?v=9.0"></script>
+  <script src="data.js?v=9.0"></script>
+  <script src="app.js?v=9.0"></script>
+</body>
+</html>
